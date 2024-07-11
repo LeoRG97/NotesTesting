@@ -4,6 +4,7 @@
 //
 //  Created by Leonardo Rodríguez González on 29/06/24.
 //
+// MARK: INTEGRATION TESTS
 
 import XCTest
 @testable import NotesTesting
@@ -76,6 +77,52 @@ final class ViewModelIntegrationTest: XCTestCase {
         XCTAssertEqual(secondNote.title, "Hello 2")
         XCTAssertEqual(secondNote.text, "World 2")
         
+    }
+    
+    func testUpdateNote() {
+        // Given
+        sut.createNoteWith(title: "Hello", text: "World")
+        guard let note = sut.notes.first else {
+            XCTFail()
+            return
+        }
+        
+        // When
+        sut.updateNote(identifier: note.identifier, title: "Goodbye", text: "Friends")
+        
+        // Then
+        XCTAssertTrue(sut.notes.count == 1)
+        XCTAssertEqual(sut.notes[0].title, "Goodbye")
+        XCTAssertEqual(sut.notes[0].text, "Friends")
+    }
+    
+    func testDeleteNote() {
+        // Given
+        sut.createNoteWith(title: "Nota 1", text: "Texto 1")
+        sut.createNoteWith(title: "Nota 2", text: "Texto 2")
+        sut.createNoteWith(title: "Nota 3", text: "Texto 3")
+        
+        // When
+        guard let note = sut.notes.last else {
+            XCTFail()
+            return
+        }
+        sut.removeNote(identifier: note.identifier)
+        
+        // Then
+        XCTAssertTrue(sut.notes.count == 2, "Debería haber 2 notas en la base de datos")
+    }
+    
+    func testDeleteNoteShouldThrowError() {
+        // Given
+        
+        // When
+        sut.removeNote(identifier: UUID())
+        
+        // Then
+        XCTAssertTrue(sut.notes.count == 0, "Debería haber 0 notas en la base de datos")
+        XCTAssertNotNil(sut.databaseError)
+        XCTAssertEqual(sut.databaseError, .errorDelete)
     }
 
 

@@ -4,35 +4,18 @@
 //
 //  Created by Leonardo Rodríguez González on 23/06/24.
 //
+// MARK: UNIT TESTS
 
 import XCTest
 @testable import NotesTesting
-
-// simulación de la base de datos
-var mockDatabase: [Note] = []
-
-// mock para simular el caso de uso para crear una nota
-struct CreateNoteUseCaseMock: CreateNoteProtocol {
-    func createNoteWith(title: String, text: String) throws {
-        let note = Note(title: title, text: text, createdAt: .now)
-        mockDatabase.append(note)
-    }
-}
-
-// mock para simular el caso de uso para obtener las notas
-struct FetchAllNotesUseCaseMock: FetchAllNotesProtocol {
-    func fetchAll() throws -> [NotesTesting.Note] {
-        return mockDatabase
-    }
-}
 
 final class ViewModelTest: XCTestCase {
     
     var viewModel: NotesViewModel!
 
     override func setUpWithError() throws {
-        // inicializar view model con las instancias de los mocks
-        viewModel = NotesViewModel(createNotesUseCase: CreateNoteUseCaseMock(), fetchNotesUseCase: FetchAllNotesUseCaseMock())
+        // MARK: inicializar view model con las instancias de los mocks (que no se te olvide este paso)
+        viewModel = NotesViewModel(createNotesUseCase: CreateNoteUseCaseMock(), fetchNotesUseCase: FetchAllNotesUseCaseMock(), updateNoteUseCase: UpdateNoteUseCaseMock(), deleteNoteUseCase: DeleteNoteUseCaseMock())
     }
 
     override func tearDownWithError() throws {
@@ -77,7 +60,7 @@ final class ViewModelTest: XCTestCase {
         XCTAssertEqual(viewModel.notes[2].text, text3)
     }
     
-    /*
+    
     func testUpdateNote() {
         
         let title = "Title"
@@ -115,7 +98,5 @@ final class ViewModelTest: XCTestCase {
         }
         
     }
-     */
-
 
 }

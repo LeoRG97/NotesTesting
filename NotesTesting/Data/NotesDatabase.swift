@@ -19,6 +19,8 @@ enum DatabaseError: Error {
 protocol NotesDatabaseProtocol {
     func insert(note: Note) throws
     func fetchAll() throws -> [Note]
+    func update(identifier: UUID, title: String, text: String?) throws
+    func remove(identifier: UUID) throws
 }
 
 class NotesDatabase: NotesDatabaseProtocol {
@@ -61,6 +63,52 @@ class NotesDatabase: NotesDatabaseProtocol {
         } catch {
             print("Error \(error.localizedDescription)")
             throw DatabaseError.errorFetch
+        }
+    }
+    
+    @MainActor
+    func update(identifier: UUID, title: String, text: String?) throws {
+        let notePredicate = #Predicate<Note> {
+            $0.identifier == identifier
+        }
+        
+        var fetchDescriptor = FetchDescriptor<Note>(predicate: notePredicate)
+        fetchDescriptor.fetchLimit = 1
+        
+        do {
+            guard let updateNote = try container.mainContext.fetch(fetchDescriptor).first else {
+                throw DatabaseError.errorUpdate
+            }
+            
+            updateNote.title = title
+            updateNote.text = text
+            
+            try container.mainContext.save()
+        } catch let error {
+            print("Error actualizando información")
+            throw DatabaseError.errorUpdate
+        }
+    }
+    
+    @MainActor
+    func remove(identifier: UUID) throws {
+        let notePredicate = #Predicate<Note> {
+            $0.identifier == identifier
+        }
+        
+        var fetchDescriptor = FetchDescriptor<Note>(predicate: notePredicate)
+        fetchDescriptor.fetchLimit = 1
+        
+        do {
+            guard let deleteNote = try container.mainContext.fetch(fetchDescriptor).first else {
+                throw DatabaseError.errorUpdate
+            }
+        
+            container.mainContext.delete(deleteNote)
+            try container.mainContext.save()
+        } catch let error {
+            print("Error eliminando la nota")
+            throw DatabaseError.errorDelete
         }
     }
 

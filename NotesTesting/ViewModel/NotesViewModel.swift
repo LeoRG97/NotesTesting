@@ -12,13 +12,19 @@ import Observation
 class NotesViewModel {
     
     var notes: [Note]
+    var databaseError: DatabaseError?
+    
     var createNotesUseCase: CreateNoteProtocol
     var fetchNotesUseCase: FetchAllNotesProtocol
+    var updateNoteUseCase: UpdateNoteProtocol
+    var deleteNoteUseCase: DeleteNoteProtocol
     
-    init(notes: [Note] = [], createNotesUseCase: CreateNoteProtocol = CreateNoteUseCase(), fetchNotesUseCase: FetchAllNotesProtocol = FetchNotesUseCase()) {
+    init(notes: [Note] = [], createNotesUseCase: CreateNoteProtocol = CreateNoteUseCase(), fetchNotesUseCase: FetchAllNotesProtocol = FetchNotesUseCase(), updateNoteUseCase: UpdateNoteProtocol = UpdateNoteUseCase(), deleteNoteUseCase: DeleteNoteProtocol = DeleteNoteUseCase()) {
         self.notes = notes
         self.createNotesUseCase = createNotesUseCase
         self.fetchNotesUseCase = fetchNotesUseCase
+        self.updateNoteUseCase = updateNoteUseCase
+        self.deleteNoteUseCase = deleteNoteUseCase
         fetchAllNotes()
     }
     
@@ -42,14 +48,23 @@ class NotesViewModel {
     }
     
     func updateNote(identifier: UUID, title: String, text: String) {
-        if let index = notes.firstIndex(where: { $0.identifier == identifier}) {
-            let updatedNote = Note(identifier: identifier, title: title, text: text, createdAt: notes[index].createdAt)
-            notes[index] = updatedNote
+        do {
+            try updateNoteUseCase.updateNoteWith(identifier: identifier, title: title, text: text)
+        } catch {
+            print("Error: \(error.localizedDescription)")
         }
     }
     
     func removeNote(identifier: UUID) {
-        notes.removeAll(where: { $0.identifier == identifier })
+        do {
+            try deleteNoteUseCase.removeNote(identifier: identifier)
+            fetchAllNotes()
+        } catch let error as DatabaseError {
+            print("Error: \(error.localizedDescription)")
+            databaseError = error
+        } catch {
+            print("Error: \(error.localizedDescription)")
+        }
     }
     
 }

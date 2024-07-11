@@ -11,7 +11,7 @@ struct UpdateNoteView: View {
     
     // estas cuatro propiedades se inicializan desde la pantalla "ContentView" (sí, los states también se pueden inicializar como parámetros
     var viewModel: NotesViewModel
-    let id: UUID
+    let identifier: UUID
     @State var title: String = ""
     @State var text: String = ""
     
@@ -29,7 +29,7 @@ struct UpdateNoteView: View {
                 }
             }
             Button(action: {
-                viewModel.removeNote(id: id)
+                viewModel.removeNote(identifier: identifier)
                 dismiss()
             }) {
                 Text("Eliminar nota")
@@ -44,7 +44,7 @@ struct UpdateNoteView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
-                    viewModel.updateNote(id: id, title: title, text: text)
+                    viewModel.updateNote(identifier: identifier, title: title, text: text)
                     dismiss()
                 }) {
                     Text("Guardar nota")
@@ -58,7 +58,7 @@ struct UpdateNoteView: View {
 #Preview {
     // agregar NavigationStack para ver los elementos visuales de la barra de navegación
     NavigationStack {
-        UpdateNoteView(viewModel: .init(), id: .init(), title: "Hola mundo", text: "¿cómo estás?") // .init = UUID()
+        UpdateNoteView(viewModel: .init(), identifier: .init(), title: "Hola mundo", text: "¿cómo estás?") // .init = UUID()
     }
   
 }
